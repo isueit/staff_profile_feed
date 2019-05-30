@@ -1,0 +1,4 @@
+# TODO Set this to your county in the form 'Madison' or 'Des Moines'
+county_to_create_feed: 'all'
+# TODO change this to the central staff database
+central_staff_site_url: 'http://localhost/drupal8entity/people/feed'
