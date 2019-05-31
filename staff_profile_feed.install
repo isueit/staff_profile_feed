@@ -3,23 +3,22 @@
  * Implements hook_install()
  */
 function staff_profile_feed_install() {
-  $feed = \Drupal\aggregator\Entity::create();
-  $county = ucwords(\Drupal::config('staff_profile_feed.settings')->get('county_to_create_feed'));
+  $feed = \Drupal\aggregator\Entity\Feed::create();
+  $county = \Drupal::config('staff_profile_feed.settings')->get('county_to_create_feed');
   $url = \Drupal::config('staff_profile_feed.settings')->get('central_staff_site_url');
 
-  $feed->setTitle($county);
-  $feed->setUrl('staff-feed'); // default aggregator/sources/$id
+  $feed->setTitle($county . " Staff");
+  $feed->setUrl($url . '/' . preg_replace("/[\s_]/", "-", $county)); // default aggregator/sources/$id
   $feed->setRefreshRate(43200); //12 hours
   $feed->setLastCheckedTime(1);
   $feed->setQueuedTime(1);
-  $feed->setWebsiteUrl($url . preg_replace(' ', '-',$county));
   $feed->save();
   $feed->refreshItems();
 
-  //Set to filter view by feed identifier
+  //Set to filter view by feed identifier as a string
   $fid = $feed->id();
-  \Drupal::configFactory()->getEditable('views.view.staff_rss')
-    ->set('display.display_options.filters.fid.value.value', $fid)
+  \Drupal::configFactory()->getEditable('views.view.staff')
+    ->set('display.default.display_options.filters.fid.value.value', '' . $fid)
     ->save();
 
   // WARNING the staff profiles are set to expire, but this method causes all rss feed items to expire at 12 hours

@@ -3,10 +3,10 @@ status: true
 dependencies:
   module:
     - aggregator
-id: staff_rss
+id: staff
 label: Staff
 module: views
-description: 'Staff view from RSS feed'
+description: ''
 tag: ''
 base_table: aggregator_item
 base_field: iid
@@ -62,23 +62,8 @@ display:
             next: ››
       style:
         type: grid
-        options:
-          grouping: {  }
-          columns: 2
-          automatic_width: true
-          alignment: horizontal
-          col_class_default: true
-          col_class_custom: ''
-          row_class_default: true
-          row_class_custom: ''
       row:
         type: fields
-        options:
-          default_field_elements: true
-          inline:
-            title: title
-          separator: ''
-          hide_empty: false
       fields:
         title:
           table: aggregator_item
@@ -146,7 +131,7 @@ display:
           field_api_classes: false
         description:
           id: description
-          table: aggregator_feed
+          table: aggregator_item
           field: description
           relationship: none
           group_type: group
@@ -205,7 +190,7 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-          entity_type: aggregator_feed
+          entity_type: aggregator_item
           entity_field: description
           plugin_id: field
       filters:
@@ -220,7 +205,7 @@ display:
           value:
             min: ''
             max: ''
-            value: '1'
+            value: '999' # Changed by install
           group: 1
           exposed: false
           expose:
@@ -271,7 +256,7 @@ display:
   page_1:
     display_plugin: page
     id: page_1
-    display_title: 'Staff Profiles'
+    display_title: Staff
     position: 1
     display_options:
       display_extenders: {  }
