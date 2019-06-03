@@ -1,1 +1,22 @@
 <?php
+
+/**
+ * Implements hook_chron()
+ * Removes old profiles if they were older that 24 hours
+ * Allows feed item removal to be more or less frequent
+ * WARNING: works when item expiry is longer than 12 hours
+ * staff will be removed if chron is more frequent
+ * Module weight low should delete old entries and then allow aggregator to replace them if they are still there
+ * A failed connection to the main database results in no entries in this case
+ */
+function staff_profile_feed_chron() {
+  $fid = \Drupal::config('staff_profile_feed.settings')->get('feed_id');
+  $feed = \Drupal\aggregator\Feed::load($fid);
+  $now = time();
+
+  foreach ($items as $item) {
+    if ($item->getPostedTime() + 86400 < $now) {
+      $item->delete();
+    }
+  }
+}
