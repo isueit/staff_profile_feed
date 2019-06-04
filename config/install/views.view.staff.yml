@@ -62,6 +62,15 @@ display:
             next: ››
       style:
         type: grid
+        options:
+          grouping: {  }
+          columns: 2
+          automatic_width: true
+          alignment: horizontal
+          col_class_default: true
+          col_class_custom: ''
+          row_class_default: true
+          row_class_custom: ''
       row:
         type: fields
       fields:
@@ -205,7 +214,7 @@ display:
           value:
             min: ''
             max: ''
-            value: '999' # Changed by install
+            value: '11'
           group: 1
           exposed: false
           expose:

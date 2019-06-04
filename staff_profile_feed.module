@@ -8,15 +8,67 @@
  * staff will be removed if chron is more frequent
  * Module weight low should delete old entries and then allow aggregator to replace them if they are still there
  * A failed connection to the main database results in no entries in this case
+ *
  */
 function staff_profile_feed_chron() {
+  staff_profile_feed_delete_old(12);
+  staff_profile_feed_reload();
+}
+
+/**
+ * Updates this feed
+ * run using "drush ev 'staff_profile_feed_reload()'"
+ * Only updates when feed sha256 hash changes, does not remove
+ */
+function staff_profile_feed_reload() {
   $fid = \Drupal::config('staff_profile_feed.settings')->get('feed_id');
-  $feed = \Drupal\aggregator\Feed::load($fid);
+  $feed = \Drupal::entityTypeManager()->getStorage('aggregator_feed')->load($fid);
+  $feed->refreshItems();
+}
+
+/**
+ * Deletes items older than $hours
+ * Run using "drush ev 'staff_profile_feed_delete_old($hours)'"
+ */
+function staff_profile_feed_delete_old($hours) {
+  $fid = \Drupal::config('staff_profile_feed.settings')->get('feed_id');
+  $storage = \Drupal::entityTypeManager()->getStorage('aggregator_item');
+  $items = $storage->loadByFeed($fid);
   $now = time();
 
   foreach ($items as $item) {
-    if ($item->getPostedTime() + 86400 < $now) {
+    if ($item->getPostedTime() + ($hours*3600) < $now) {
       $item->delete();
     }
+  }
+}
+
+/**
+ * Delete removed feed items
+ */
+function staff_profile_feed_delete_removed() {
+  $config = \Drupal::service('config.factory')->get('aggregator.settings');
+  $fid = \Drupal::config('staff_profile_feed.settings')->get('feed_id');
+  $storage = \Drupal::entityTypeManager()->getStorage('aggregator_item');
+  $items = $storage->loadByFeed($fid);
+  $feed = \Drupal::entityTypeManager()->getStorage('aggregator_feed')->load($fid);
+  $feed_url = $feed->getUrl();
+  $fetcher = \Drupal\aggregator\Plugin\aggregator\fetcher\DefaultFetcher::create(\Drupal->getContainer(),$config,'aggregator');
+  $parser = new Drupal\aggregator\Plugin\aggregator\parser\DefaultParser();
+  try {
+    $success = $fetcher->fetch($feed);
+  } catch (PluginException $e) {
+    debug($e);
+  }
+
+  $hash = hash('sha256', $feed->source_string);
+  $has_new_content = $success && $feed->getHash() != $hash;
+  if ($has_new_content) {
+    try {
+      $parser->parse($feed);
+      if (!$feed->getWebsiteUrl())
+    }
+
+
   }
 }
