@@ -48,27 +48,57 @@ function staff_profile_feed_delete_old($hours) {
  */
 function staff_profile_feed_delete_removed() {
   $config = \Drupal::service('config.factory')->get('aggregator.settings');
+
   $fid = \Drupal::config('staff_profile_feed.settings')->get('feed_id');
   $storage = \Drupal::entityTypeManager()->getStorage('aggregator_item');
   $items = $storage->loadByFeed($fid);
   $feed = \Drupal::entityTypeManager()->getStorage('aggregator_feed')->load($fid);
   $feed_url = $feed->getUrl();
-  $fetcher = \Drupal\aggregator\Plugin\aggregator\fetcher\DefaultFetcher::create(\Drupal->getContainer(),$config,'aggregator');
+  $plugin_definition = \Drupal::service('plugin.manager.aggregator.fetcher')->getDefinition('aggregator');
+  $fetcher = \Drupal\aggregator\Plugin\aggregator\fetcher\DefaultFetcher::create(\Drupal::getContainer(),array(),'aggregator',$plugin_definition);
   $parser = new Drupal\aggregator\Plugin\aggregator\parser\DefaultParser();
+
+  debug(get_class($feed));
   try {
     $success = $fetcher->fetch($feed);
   } catch (PluginException $e) {
     debug($e);
   }
 
+
   $hash = hash('sha256', $feed->source_string);
-  $has_new_content = $success && $feed->getHash() != $hash;
+  $has_new_content = $success /*&& $feed->getHash() != $hash*/;
   if ($has_new_content) {
     try {
-      $parser->parse($feed);
-      if (!$feed->getWebsiteUrl())
+      if ($parse->parse($feed)) {
+        if (!$feed->getWebsiteUrl()) {
+          $feed->setWebsiteUrl($feed->getUrl());
+        }
+        $feed->setHash($hash);
+        $feed->save();
+
+        if ($feed->getUrl() != $feed_url) {
+          debug('Updated URL for feed ' . $feed->label() . ' to ' . $feed->getUrl() . '.');
+        }
+        debug('There is new syndicated content from ' . $feed->label() . '.');
+
+        if (!empty($feed->items)) {
+          foreach ($items as $litem) {
+            $removed = TRUE;
+            foreach ($feed->items as $fitem) {
+              if ($litem->getGuid() == $fitem['giud']) {
+                $removed = FALSE;
+              }
+            }
+            if ($removed) {
+              debug($litem);
+              //$litem->delete();
+            }
+          }
+        }
+      }
+    } catch (PluginException $e) {
+      debug($e);
     }
-
-
   }
 }
