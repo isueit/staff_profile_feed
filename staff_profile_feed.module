@@ -1,18 +1,17 @@
 <?php
 
 /**
- * Implements hook_chron()
- * Removes old profiles if they were older that 24 hours
- * Allows feed item removal to be more or less frequent
- * WARNING: works when item expiry is longer than 12 hours
- * staff will be removed if chron is more frequent
- * Module weight low should delete old entries and then allow aggregator to replace them if they are still there
- * A failed connection to the main database results in no entries in this case
- *
+ * Implements hook_cron()
+ * Runs staff_profile_feed_delete_removed() and staff_profile_feed_reload()
+ * Waits 12 hours from last checked time.
  */
-function staff_profile_feed_chron() {
-  staff_profile_feed_delete_old(12);
-  staff_profile_feed_reload();
+function staff_profile_feed_cron() {
+  $fid = \Drupal::config('staff_profile_feed.settings')->get('feed_id');
+  $feed = \Drupal::entityTypeManager()->getStorage('aggregator_feed')->load($fid);
+  if ($now > $feed->getLastCheckedTime() + 43200) {
+    staff_profile_feed_delete_removed();
+    staff_profile_feed_reload();
+  }
 }
 
 /**
@@ -44,25 +43,24 @@ function staff_profile_feed_delete_old($hours) {
 }
 
 /**
- * Delete removed feed items
+ * Delete feed items removed from source rss feed
+ * Can be run using "drush ev 'staff_profile_feed_delete_removed()'"
  */
 function staff_profile_feed_delete_removed() {
-  $config = \Drupal::service('config.factory')->get('aggregator.settings');
-
   $fid = \Drupal::config('staff_profile_feed.settings')->get('feed_id');
   $storage = \Drupal::entityTypeManager()->getStorage('aggregator_item');
   $items = $storage->loadByFeed($fid);
   $feed = \Drupal::entityTypeManager()->getStorage('aggregator_feed')->load($fid);
   $feed_url = $feed->getUrl();
+
   $plugin_definition = \Drupal::service('plugin.manager.aggregator.fetcher')->getDefinition('aggregator');
   $fetcher = \Drupal\aggregator\Plugin\aggregator\fetcher\DefaultFetcher::create(\Drupal::getContainer(),array(),'aggregator',$plugin_definition);
   $parser = new Drupal\aggregator\Plugin\aggregator\parser\DefaultParser();
 
-  debug(get_class($feed));
   try {
     $success = $fetcher->fetch($feed);
   } catch (PluginException $e) {
-    debug($e);
+    \Drupal::logger('staff_profile_feed')->warning($e);
   }
 
 
@@ -70,35 +68,37 @@ function staff_profile_feed_delete_removed() {
   $has_new_content = $success /*&& $feed->getHash() != $hash*/;
   if ($has_new_content) {
     try {
-      if ($parse->parse($feed)) {
+      if ($parser->parse($feed)) {
         if (!$feed->getWebsiteUrl()) {
           $feed->setWebsiteUrl($feed->getUrl());
         }
-        $feed->setHash($hash);
+        //$feed->setHash($hash);
         $feed->save();
 
         if ($feed->getUrl() != $feed_url) {
-          debug('Updated URL for feed ' . $feed->label() . ' to ' . $feed->getUrl() . '.');
+          \Drupal::logger('staff_profile_feed')->notice('Updated URL for feed ' . $feed->label() . ' to ' . $feed->getUrl() . '.');
         }
-        debug('There is new syndicated content from ' . $feed->label() . '.');
+        \Drupal::logger('staff_profile_feed')->notice('Syndicated content from ' . $feed->label() . ' has changed.');
 
+        $deleted_items = 0;
         if (!empty($feed->items)) {
           foreach ($items as $litem) {
             $removed = TRUE;
             foreach ($feed->items as $fitem) {
-              if ($litem->getGuid() == $fitem['giud']) {
+              if ($litem->getGuid() == $fitem['guid']) {
                 $removed = FALSE;
               }
             }
             if ($removed) {
-              debug($litem);
-              //$litem->delete();
+              $deleted_items += 1;
+              $litem->delete();
             }
           }
         }
+        \Drupal::logger('staff_profile_feed')->notice('Removed ' . $deleted_items . ' profile(s).');
       }
     } catch (PluginException $e) {
-      debug($e);
+      \Drupal::logger('staff_profile_feed')->warning($e);
     }
   }
 }

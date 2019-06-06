@@ -9,7 +9,7 @@ function staff_profile_feed_install() {
   $url = \Drupal::config('staff_profile_feed.settings')->get('central_staff_site_url');
 
   $feed->setTitle($county . " Staff");
-  $feed->setUrl($url . '/' . preg_replace("/[\s_]/", "-", $county)); // default aggregator/sources/$id
+  $feed->setUrl($url . '/' . preg_replace("/[\s_]/", "-", $county));
   $feed->setRefreshRate(43200); //12 hours
   $feed->setLastCheckedTime(0);
   $feed->setQueuedTime(43200);
@@ -24,11 +24,6 @@ function staff_profile_feed_install() {
 
   \Drupal::configFactory()->getEditable('views.view.staff')
     ->set('display.default.display_options.filters.fid.value.value', '' . $fid)
-    ->save();
-
-  // WARNING the staff profiles are set to expire, but this method causes all rss feed items to expire after 12 hours
-  \Drupal::configFactory()->getEditable('aggregator.settings')
-    ->set('items.expire', 43200) //12 hours
     ->save();
 
 }
