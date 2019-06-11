@@ -65,7 +65,7 @@ display:
         options:
           grouping: {  }
           columns: 2
-          automatic_width: true
+          automatic_width: false
           alignment: horizontal
           col_class_default: true
           col_class_custom: ''
@@ -73,14 +73,16 @@ display:
           row_class_custom: ''
       row:
         type: fields
+        options:
+          default_field_elements: true
+          inline: {  }
+          separator: ''
+          hide_empty: true
       fields:
         title:
+          id: title
           table: aggregator_item
           field: title
-          id: title
-          entity_type: null
-          entity_field: title
-          plugin_id: field
           relationship: none
           group_type: group
           admin_label: ''
@@ -117,17 +119,18 @@ display:
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: false
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: false
           empty: ''
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
           type: aggregator_title
-          settings: {  }
+          settings:
+            display_as_link: true
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -138,6 +141,9 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
+          entity_type: null
+          entity_field: title
+          plugin_id: field
         description:
           id: description
           table: aggregator_item
@@ -187,7 +193,7 @@ display:
           empty_zero: false
           hide_alter_empty: true
           click_sort_column: value
-          type: basic_string
+          type: aggregator_xss
           settings: {  }
           group_column: value
           group_columns: {  }
@@ -214,7 +220,7 @@ display:
           value:
             min: ''
             max: ''
-            value: '999' #Set when installed
+            value: '999' #Changed on install
           group: 1
           exposed: false
           expose:
