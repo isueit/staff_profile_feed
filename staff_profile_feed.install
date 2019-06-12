@@ -26,4 +26,12 @@ function staff_profile_feed_install() {
     ->set('display.default.display_options.filters.fid.value.value', '' . $fid)
     ->save();
 
+  //Allow profile images to be included
+  $allowed_tags = \Drupal::config('aggregator.settings')->get('items.allowed_html');
+  if (stripos('<img>', $allowed_tags) === FALSE) {
+    \Drupal::configFactory()->getEditable('aggregator.settings')
+      ->set('items.allowed_html', $allowed_tags . " <img>")
+      ->save();
+  }
+
 }
