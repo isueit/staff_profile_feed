@@ -4,3 +4,4 @@ county_to_create_feed: 'Adair'
 central_staff_site_url: 'http://localhost/drupal8entity/people/feed'
 # Do not rely on this id until after installation
 feed_id: 0
+staff_profile_json_url: 'http://localhost/drupal8entity/people/json-feed'

@@ -35,3 +35,7 @@ function staff_profile_feed_install() {
   }
 
 }
+
+function staff_profile_feed_json() {
+    
+}

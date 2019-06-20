@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+name: 'Staff Profiles Order'
+vid: staff_profiles_order
+description: 'Sets order of staff profiles from json feed.'
+weight: 0

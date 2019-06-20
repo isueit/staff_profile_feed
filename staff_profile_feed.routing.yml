@@ -1,0 +1,9 @@
+staff_profile_feed.staff_page:
+  path: '/json-staff'
+  defaults:
+    _controller: '\Drupal\staff_profile_feed\Controller\StaffProfilesList::generatePage'
+    _title: 'County Staff'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: TRUE #TODO May want to change, depends on update requirements
