@@ -102,3 +102,11 @@ function staff_profile_feed_delete_removed() {
     }
   }
 }
+
+function load_json_to_taxonomy() {
+  $config = \Drupal::config('staff_profile_feed.settings');
+  $url = $config->get('staff_profile_json_url') . "/" . preg_replace('#[ -]+#', '-', $config->get('county_to_create_feed'));
+  $json_str = file_get_contents($url);
+  $decoded = json_decode($json_str, TRUE);
+  #TODO add this to settings as button and add to sort
+}

@@ -7,3 +7,13 @@ staff_profile_feed.staff_page:
     _permission: 'access content'
   options:
     no_cache: TRUE #TODO May want to change, depends on update requirements
+
+staff_profile_feed.feed_settings_form:
+  path: 'admin/config/staff_profile_feed_settings'
+  defaults:
+    _form: '\Drupal\staff_profile_feed\Form\StaffProfileFeedSettingsForm'
+    _title: 'Staff Profile Feed Settings'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin-route: TRUE

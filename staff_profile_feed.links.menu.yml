@@ -1,0 +1,5 @@
+staff_profile_feed.feed_settings_form:
+  title: Staff Profile Feed Settings
+  description: 'Adjust settings for staff profile feed'
+  route_name: staff_profile_feed.feed_settings_form
+  parent: system.admin_config_content
