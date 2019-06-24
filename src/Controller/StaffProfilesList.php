@@ -35,7 +35,7 @@ class StaffProfilesList extends ControllerBase {
           $page['container_1']['row_' . $i]['col_'.$j] = array(
             '#type' => 'markup',
             '#prefix' => '<div class="views-col col-' . $j . '">',
-            '#markup' => $json['items'][$item_index]['title'],
+            '#markup' => $json['items'][$item_index]['content_html'],
             '#suffix' => '</div>',
             '#attributes' => array(
               'class' => array('views-col', 'col-' . $j),
@@ -59,7 +59,6 @@ class StaffProfilesList extends ControllerBase {
     $url = $config->get('staff_profile_json_url') . "/" . preg_replace('#[ -]+#', '-', $config->get('county_to_create_feed'));
     $json_str = file_get_contents($url);
     $decoded = json_decode($json_str, TRUE);
-    debug($decoded);
     if ($ordered) {
       return StaffProfilesList::orderStaffProfiles($decoded);
     }
