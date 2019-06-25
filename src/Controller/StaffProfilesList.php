@@ -12,7 +12,7 @@ class StaffProfilesList extends ControllerBase {
    * Generates table display
    */
   public function generatePage() {
-    $json = StaffProfilesList::getStaffProfiles(FALSE);
+    $json = StaffProfilesList::getStaffProfiles(TRUE);
     $items = count($json['items']);
     $cols = 2;
     $rows = $items/$cols;
@@ -45,8 +45,6 @@ class StaffProfilesList extends ControllerBase {
         }
       }
     }
-
-    //$ordered = orderStaffProfiles($json);
     return $page;
   }
 
@@ -64,13 +62,23 @@ class StaffProfilesList extends ControllerBase {
     }
     return $decoded;
     //TODO consider enabling caching to prevent error- will cause missing to be more persistant
+    //TODO allow profile to be unpublished from json feed
   }
 
   /**
    * {@inheritdoc}
    * Associates order with json based on taxonomy
    */
-  private function orderStaffProfiles($assoc_array) {
-    return $assoc_array;
+  private function orderStaffProfiles($unsorted) {
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('staff_profiles_order', 0, 1, TRUE);
+    $sorted = array();
+    foreach ($terms as $term) {
+      foreach ($unsorted['items'] as $num => $json) {
+        if ($json['id'] == $term->get('field_spid')->value) {
+          $sorted['items'][] = $json;
+        }
+      }
+    }
+    return $sorted;
   }
 }

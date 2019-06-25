@@ -35,30 +35,7 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
     $config->set('county_to_create_feed', $form_state->getValue('county'))
       ->set('staff_profile_json_url', $form_state->getValue('address'))
       ->save();
-    $conf = \Drupal::config('staff_profile_feed.settings');
-    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('staff_profiles_order');
-    $url = $conf->get('staff_profile_json_url') . "/" . preg_replace('#[ -]+#', '-', $conf->get('county_to_create_feed'));
-    $json_str = file_get_contents($url);
-    $decoded = json_decode($json_str, TRUE);
-    foreach ($decoded['items'] as $json) {
-      $found = false;
-      foreach ($terms as $tid) {
-        $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid->tid);
-        debug($term->get('field_spid'));
-        debug($json['id']);
-        if ($term->get('field_spid') == $json['id']) {
-          $found = true;
-          debug("found");
-        }
-      }
-      if (!$found) {
-        Term::create([
-          'name' => $json['title'],
-          'field_spid' => $json['id'],
-          'vid' => 'staff_profiles_order',
-        ])->save();
-      }
-    }
+    StaffProfileFeedSettingsForm::loadJsonTerms();
 
 
   }
@@ -92,7 +69,38 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
       '#markup' => "Check to make sure this is your feed: <a href='" . $url . "'>" . $url . "</a>",
       '#allowed_tags' => ['a'],
     );
-
+    //TODO add button that only saves json to vocab
+    // $form['load_json'] = array(
+    //   '#type' => 'submit',
+    //   '#value' => $this->t('Save Json to Taxonomy'),
+    //   '#submit' => array('loadJsonTerms()'),
+    //   '#prefix' => '<br><br>',
+    // );
     return parent::buildForm($form, $form_state);
+  }
+
+  public function loadJsonTerms() {
+    $conf = \Drupal::config('staff_profile_feed.settings');
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('staff_profiles_order', 0, 1, TRUE);
+    $url = $conf->get('staff_profile_json_url') . "/" . preg_replace('#[ -]+#', '-', $conf->get('county_to_create_feed'));
+    $json_str = file_get_contents($url);
+    $decoded = json_decode($json_str, TRUE);
+    foreach ($decoded['items'] as $json) {
+      $found = FALSE;
+      foreach ($terms as $term) {
+        if ($json['id'] == $term->get('field_spid')->value) {
+          $found = TRUE;
+          break;
+        }
+      }
+      if (!$found) {
+        Term::create([
+          'name' => $json['title'],
+          'field_spid' => $json['id'],
+          'vid' => 'staff_profiles_order',
+          'weight' => 999,
+        ])->save();
+      }
+    }
   }
 }
