@@ -5,5 +5,4 @@ description: "Creates an Aggregator feed of the county's staff"
 version: '8.x-1.0-dev'
 package: 'ISUEO'
 dependencies:
-  - drupal:views
-  - aggregator
+  - taxonomy

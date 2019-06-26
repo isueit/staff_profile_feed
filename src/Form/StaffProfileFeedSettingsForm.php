@@ -73,7 +73,7 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
     // $form['load_json'] = array(
     //   '#type' => 'submit',
     //   '#value' => $this->t('Save Json to Taxonomy'),
-    //   '#submit' => array('loadJsonTerms()'),
+    //   '#submit' => array('loadJsonTerms'),
     //   '#prefix' => '<br><br>',
     // );
     return parent::buildForm($form, $form_state);

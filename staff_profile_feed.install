@@ -3,39 +3,6 @@
  * Implements hook_install()
  */
 function staff_profile_feed_install() {
-  module_set_weight('your_module_name', -1);
-  $feed = \Drupal\aggregator\Entity\Feed::create();
-  $county = \Drupal::config('staff_profile_feed.settings')->get('county_to_create_feed');
-  $url = \Drupal::config('staff_profile_feed.settings')->get('central_staff_site_url');
-
-  $feed->setTitle($county . " Staff");
-  $feed->setUrl($url . '/' . preg_replace("/[\s_]/", "-", $county));
-  $feed->setRefreshRate(43200); //12 hours
-  $feed->setLastCheckedTime(0);
-  $feed->setQueuedTime(43200);
-  $feed->save();
-  $feed->refreshItems();
-
-  //Set to filter view by feed identifier as a string, saving it to a config var also
-  $fid = $feed->id();
-  \Drupal::configFactory()->getEditable('staff_profile_feed.settings')
-    ->set('feed_id', $fid)
-    ->save();
-
-  \Drupal::configFactory()->getEditable('views.view.staff')
-    ->set('display.default.display_options.filters.fid.value.value', '' . $fid)
-    ->save();
-
-  //Allow profile images to be included
-  $allowed_tags = \Drupal::config('aggregator.settings')->get('items.allowed_html');
-  if (stripos('<img>', $allowed_tags) === FALSE) {
-    \Drupal::configFactory()->getEditable('aggregator.settings')
-      ->set('items.allowed_html', $allowed_tags . " <img>")
-      ->save();
-  }
-
-}
-
-function staff_profile_feed_json() {
-    
+  module_set_weight('staff_profile_feed', -1);
+  \Drupal\staff_profile_feed\Controller\StaffProfileFeedSettingsForm::loadJsonTerms();
 }
