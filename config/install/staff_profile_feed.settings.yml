@@ -1,4 +1,4 @@
 # NOTE: Change this in settings
-county_to_create_feed: 'Adair'
+county_to_create_feed: 'Change Me'
 # TODO: Hard code this to the staff directory
 staff_profile_json_url: 'http://localhost/drupal8entity/people/json-feed'

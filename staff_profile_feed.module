@@ -1,9 +1,9 @@
 <?php
-
+use \Drupal\staff_profile_feed\Form\StaffProfileFeedSettingsForm;
 /**
  * Implements hook_cron()
  * Adds profiles from json feed to taxonomy vocab
  */
 function staff_profile_feed_cron() {
-  \Drupal\staff_profile_feed\Controller\StaffProfileFeedSettingsForm::loadJsonTerms();
+  StaffProfileFeedSettingsForm::loadJsonTerms();
 }

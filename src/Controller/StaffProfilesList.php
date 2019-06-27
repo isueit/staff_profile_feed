@@ -15,7 +15,7 @@ class StaffProfilesList extends ControllerBase {
     $json = StaffProfilesList::getStaffProfiles(TRUE);
     $items = count($json['items']);
     $cols = 2;
-    $rows = $items/$cols;
+    $rows = ceil($items/$cols);
     $page['container_1'] = array(
       '#type' => 'container',
       '#attributes' => array(
@@ -61,8 +61,6 @@ class StaffProfilesList extends ControllerBase {
       return StaffProfilesList::orderStaffProfiles($decoded);
     }
     return $decoded;
-    //TODO consider enabling caching to prevent error- will cause missing to be more persistant
-    //TODO allow profile to be unpublished from json feed
   }
 
   /**
@@ -71,10 +69,10 @@ class StaffProfilesList extends ControllerBase {
    */
   private function orderStaffProfiles($unsorted) {
     $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('staff_profiles_order', 0, 1, TRUE);
-    $sorted = array();
+    $sorted = array('items' => array());
     foreach ($terms as $term) {
       foreach ($unsorted['items'] as $num => $json) {
-        if ($json['id'] == $term->get('field_spid')->value) {
+        if (($json['id'] == $term->get('field_spid')->value) && !empty($term->get('field_published')->value)) {
           $sorted['items'][] = $json;
         }
       }

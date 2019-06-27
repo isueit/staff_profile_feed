@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_published
+    - taxonomy.vocabulary.staff_profiles_order
+id: taxonomy_term.staff_profiles_order.field_published
+field_name: field_published
+entity_type: taxonomy_term
+bundle: staff_profiles_order
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

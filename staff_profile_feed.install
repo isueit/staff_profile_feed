@@ -4,5 +4,4 @@
  */
 function staff_profile_feed_install() {
   module_set_weight('staff_profile_feed', -1);
-  \Drupal\staff_profile_feed\Controller\StaffProfileFeedSettingsForm::loadJsonTerms();
 }

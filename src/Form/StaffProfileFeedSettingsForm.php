@@ -97,6 +97,7 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
         Term::create([
           'name' => $json['title'],
           'field_spid' => $json['id'],
+          'field_published' => TRUE,
           'vid' => 'staff_profiles_order',
           'weight' => 999,
         ])->save();
