@@ -6,7 +6,7 @@ staff_profile_feed.staff_page:
   requirements:
     _permission: 'access content'
   options:
-    no_cache: TRUE #TODO May want to change, depends on update requirements
+    no_cache: TRUE #NOTE: switch to false on productions
 
 staff_profile_feed.feed_settings_form:
   path: 'admin/config/staff_profile_feed_settings'

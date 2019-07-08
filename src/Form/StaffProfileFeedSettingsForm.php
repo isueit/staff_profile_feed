@@ -69,14 +69,18 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
       '#markup' => "Check to make sure this is your feed: <a href='" . $url . "'>" . $url . "</a>",
       '#allowed_tags' => ['a'],
     );
+
     //TODO add button that only saves json to vocab
-    // $form['load_json'] = array(
-    //   '#type' => 'submit',
-    //   '#value' => $this->t('Save Json to Taxonomy'),
-    //   '#submit' => array('loadJsonTerms'),
-    //   '#prefix' => '<br><br>',
-    // );
+    $form['actions']['load_terms'] = array(
+      '#type' => 'submit',
+      '#value' => t('Load JSON to Taxonomy'),
+      '#submit' => array('formSubmitJson'),
+    );
     return parent::buildForm($form, $form_state);
+  }
+
+  public function submitFormJson($form, FormStateInterface $form_state) {
+    StaffProfileFeedSettingsForm::loadJsonTerms();
   }
 
   public function loadJsonTerms() {
@@ -103,5 +107,6 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
         ])->save();
       }
     }
+    drupal_set_message(t("Staff JSON loaded into 'Staff Profiles Order' taxonomy."));
   }
 }
