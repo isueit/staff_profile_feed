@@ -36,8 +36,6 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
       ->set('staff_profile_json_url', $form_state->getValue('address'))
       ->save();
     StaffProfileFeedSettingsForm::loadJsonTerms();
-
-
   }
 
   /**
@@ -70,16 +68,17 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
       '#allowed_tags' => ['a'],
     );
 
-    //TODO add button that only saves json to vocab
     $form['actions']['load_terms'] = array(
       '#type' => 'submit',
+      '#name' => 'json_to_terms',
       '#value' => t('Load JSON to Taxonomy'),
-      '#submit' => array('formSubmitJson'),
+      '#submit' => array([$this, 'loadJsonTerms'])
     );
+
     return parent::buildForm($form, $form_state);
   }
 
-  public function submitFormJson($form, FormStateInterface $form_state) {
+  public function submitFormJson(&$form, FormStateInterface $form_state) {
     StaffProfileFeedSettingsForm::loadJsonTerms();
   }
 
@@ -106,6 +105,10 @@ class StaffProfileFeedSettingsForm extends ConfigFormBase {
           'weight' => 999,
         ])->save();
       }
+    }
+    //Remove config saved message if we are coming from json submit as this does not save settings
+    if (debug_backtrace()[0]['function'] == 'submitFormJson') {
+      drupal_get_messages();
     }
     drupal_set_message(t("Staff JSON loaded into 'Staff Profiles Order' taxonomy."));
   }
