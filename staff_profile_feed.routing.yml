@@ -1,5 +1,5 @@
 staff_profile_feed.staff_page:
-  path: '/json-staff'
+  path: '/staff'
   defaults:
     _controller: '\Drupal\staff_profile_feed\Controller\StaffProfilesList::generatePage'
     _title: 'County Staff'
