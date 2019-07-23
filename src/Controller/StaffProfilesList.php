@@ -32,17 +32,16 @@ class StaffProfilesList extends ControllerBase {
       );
       for ($j=1; $j <= $cols; $j++) {
         if ($item_index < $items) {
-          #TODO fix image url formatting
+          #TODO fix image url formatting, local return with _file (removing newline removes filename), external returns with local start
           $page['container_1']['row_' . $i]['col_'.$j] = array(
             '#type' => 'markup',
-            '#prefix' => '<div class="views-col col-' . $j . '"><img src="' . (!empty($json['items'][$item_index]['external_url']) ? explode('@', $json['items'][$item_index]['external_url'])[1] : $json['items'][$item_index]['image']) . '">',
+            '#prefix' => '<div class="views-col col-' . $j . '"><img src="' . (!preg_match('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image']) ? str_replace("_file", "file", $json['items'][$item_index]['image']) : 'https:' . preg_split('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image'])[1]) . '">',
             '#markup' => $json['items'][$item_index]['content_html'],
             '#suffix' => '</div>',
             '#attributes' => array(
               'class' => array('views-col', 'col-' . $j),
             ),
           );
-          debug($json['items'][$item_index]);
           $item_index += 1;
         }
       }
