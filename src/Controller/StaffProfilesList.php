@@ -35,17 +35,20 @@ class StaffProfilesList extends ControllerBase {
           #TODO fix image url formatting, local return with _file (removing newline removes filename), external returns with local start
           $page['container_1']['row_' . $i]['col_'.$j] = array(
             '#type' => 'markup',
-            '#prefix' => '<div class="views-col col-' . $j . '"><img src="' . (!preg_match('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image']) ? str_replace("_file", "file", $json['items'][$item_index]['image']) : 'https:' . preg_split('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image'])[1]) . '">',
+            '#prefix' => '<div class="views-col col-' . $j . '"><img src="' . (!preg_match('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image']) ? str_replace("_file", "file", $json['items'][$item_index]['image']) : urldecode(preg_split('/(%40)/', $json['items'][$item_index]['image'])[1])) . '">',
             '#markup' => $json['items'][$item_index]['content_html'],
             '#suffix' => '</div>',
             '#attributes' => array(
-              'class' => array('views-col', 'col-' . $j),
+              'class' => array('views-col', 'col-' . $j, 'staff-column'),
             ),
           );
           $item_index += 1;
         }
       }
     }
+    $page['#attached'] = array(
+      'library' => ['views/views.module'],
+    );
     return $page;
   }
 
@@ -58,6 +61,7 @@ class StaffProfilesList extends ControllerBase {
     $url = $config->get('staff_profile_json_url') . "/" . preg_replace('#[ -]+#', '-', $config->get('county_to_create_feed'));
     $json_str = file_get_contents($url);
     $decoded = json_decode($json_str, TRUE);
+    debug($decoded);
     if ($ordered) {
       return StaffProfilesList::orderStaffProfiles($decoded);
     }
@@ -73,9 +77,20 @@ class StaffProfilesList extends ControllerBase {
     $sorted = array('items' => array());
     foreach ($terms as $term) {
       foreach ($unsorted['items'] as $num => $json) {
-        if (($json['id'] == $term->get('field_spid')->value) && !empty($term->get('field_published')->value)) {
-          $sorted['items'][] = $json;
+        if (($json['id'] == $term->get('field_spid')->value)) {
+          //Only add if set published
+          if (!empty($term->get('field_published')->value)) {
+            $sorted['items'][] = $json;
+          }
+          unset($unsorted['items'][$num]);
+          break;
         }
+      }
+    }
+    //Add remaining terms if they were not set to unpublished and not found in terms
+    if (count($unsorted['items']) > 0) {
+      foreach ($unsorted['items'] as $key => $json) {
+        $sorted['items'][] = $json;
       }
     }
     return $sorted;
