@@ -32,10 +32,10 @@ class StaffProfilesList extends ControllerBase {
       );
       for ($j=1; $j <= $cols; $j++) {
         if ($item_index < $items) {
-          #TODO fix image url formatting, local return with _file (removing newline removes filename), external returns with local start
+          #NOTE: json_feed runs url through urlfromuserinput, adding http(s)://localhost/site_name, this removes the offending extra characters
           $page['container_1']['row_' . $i]['col_'.$j] = array(
             '#type' => 'markup',
-            '#prefix' => '<div class="views-col col-' . $j . '"><img src="' . (!preg_match('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image']) ? str_replace("_file", "file", $json['items'][$item_index]['image']) : urldecode(preg_split('/(%40)/', $json['items'][$item_index]['image'])[1])) . '">',
+            '#prefix' => '<div class="views-col col-' . $j . '"><img src="' . (!preg_match('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image']) ? urldecode(str_replace("%2525", "", $json['items'][$item_index]['image'])) : urldecode(preg_split('/(%40)/', $json['items'][$item_index]['image'])[1])) . '">',
             '#markup' => $json['items'][$item_index]['content_html'],
             '#suffix' => '</div>',
             '#attributes' => array(
@@ -61,7 +61,6 @@ class StaffProfilesList extends ControllerBase {
     $url = $config->get('staff_profile_json_url') . "/" . preg_replace('#[ -]+#', '-', $config->get('county_to_create_feed'));
     $json_str = file_get_contents($url);
     $decoded = json_decode($json_str, TRUE);
-    debug($decoded);
     if ($ordered) {
       return StaffProfilesList::orderStaffProfiles($decoded);
     }
