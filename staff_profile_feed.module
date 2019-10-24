@@ -7,3 +7,15 @@ use \Drupal\staff_profile_feed\Form\StaffProfileFeedSettingsForm;
 function staff_profile_feed_cron() {
   StaffProfileFeedSettingsForm::loadJsonTerms();
 }
+
+function staff_profile_feed_uninstall() {
+  debug("Uninstalling");
+  \Drupal::configFactory()->getEditable('field.field.taxonomy_term.staff_profiles_order.field_published')->delete();
+  \Drupal::configFactory()->getEditable('field.field.taxonomy_term.staff_profiles_order.field_spid')->delete();
+  \Drupal::configFactory()->getEditable('field.storage.taxonomy_term.field_published')->delete();
+  \Drupal::configFactory()->getEditable('field.storage.taxonomy_term.field_spid')->delete();
+  \Drupal::configFactory()->getEditable('taxonomy.vocabulary.staff_profiles_order')->delete();
+  if (\Drupal\field\Entity\FieldStorageConfig::loadByName('field_storage_config', 'field_spid')) {
+    \Drupal\field\Entity\FieldStorageConfig::loadByName('field_storage_config', 'field_spid')->delete();
+  }
+}

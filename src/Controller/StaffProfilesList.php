@@ -32,10 +32,11 @@ class StaffProfilesList extends ControllerBase {
       );
       for ($j=1; $j <= $cols; $j++) {
         if ($item_index < $items) {
+          $image = (substr_compare($json['items'][$item_index]['image'], "/%2525", -6)) ? '<img src="' . (!preg_match('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image']) ? urldecode(str_replace("%2525", "", $json['items'][$item_index]['image'])) : urldecode(preg_split('/(%40)/', $json['items'][$item_index]['image'])[1])) . '">'  : "";
           #NOTE: json_feed runs url through urlfromuserinput, adding http(s)://localhost/site_name, this removes the offending extra characters
           $page['container_1']['row_' . $i]['col_'.$j] = array(
             '#type' => 'markup',
-            '#prefix' => '<div class="views-col col-' . $j . '"><img src="' . (!preg_match('/(%40http)(s)?(%3A)/', $json['items'][$item_index]['image']) ? urldecode(str_replace("%2525", "", $json['items'][$item_index]['image'])) : urldecode(preg_split('/(%40)/', $json['items'][$item_index]['image'])[1])) . '">',
+            '#prefix' => '<div class="views-col col-' . $j . '">' . $image,
             '#markup' => $json['items'][$item_index]['content_html'],
             '#suffix' => '</div>',
             '#attributes' => array(
